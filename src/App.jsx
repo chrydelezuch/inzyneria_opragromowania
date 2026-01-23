@@ -16,6 +16,7 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import Dashboard from "./pages/Dashboard";
 import ReportFailure from "./pages/ReportFailure";
+import Contact from "./pages/Contact";
 
 const MOCK_FEATURES = [
   { id: 1, title: "Zgłoszenie awarii", path: "/reportfailure" },
@@ -71,11 +72,23 @@ function App() {
               <MenuIcon />
             </IconButton>
 
-            <Box sx={{ flexGrow: 1 }}>
+            <Box
+              sx={{
+                flexGrow: 1,
+                display: "flex",
+                gap: 2,
+                justifyContent: "center",
+              }}
+            >
               <Button color="inherit" component={Link} to="/">
-                System Hotelowy
+                Hotel
+              </Button>
+              <Button color="inherit" component={Link} to="/contact">
+                Kontakt
               </Button>
             </Box>
+
+            <Box sx={{ width: 64 }} />
           </Toolbar>
         </AppBar>
 
@@ -87,6 +100,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/reportfailure" element={<ReportFailure />} />
+            <Route path="/contact" element={<Contact />} />
           </Routes>
         </Container>
       </Box>
