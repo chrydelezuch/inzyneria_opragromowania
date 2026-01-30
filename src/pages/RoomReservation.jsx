@@ -15,56 +15,7 @@ import {
 } from "@mui/material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-
-const ROOM_TYPES = [
-  { value: "single", label: "Jednoosobowy", maxGuests: 1 },
-  { value: "double", label: "Dwuosobowy", maxGuests: 2 },
-  { value: "suite", label: "Apartament", maxGuests: 6 },
-];
-
-import single1 from "../assets/rooms/single1.jpg";
-import single2 from "../assets/rooms/single2.jpg";
-import double1 from "../assets/rooms/double1.jpg";
-import double2 from "../assets/rooms/double2.jpg";
-import suite from "../assets/rooms/suite.jpg";
-
-const ROOMS = [
-  {
-    id: 101,
-    type: "single",
-    name: "101",
-    price: 200,
-    img: single1,
-  },
-  {
-    id: 102,
-    type: "double",
-    name: "102",
-    price: 300,
-    img: double1,
-  },
-  {
-    id: 201,
-    type: "suite",
-    name: "201",
-    price: 500,
-    img: suite,
-  },
-  {
-    id: 202,
-    type: "double",
-    name: "202",
-    price: 320,
-    img: double2,
-  },
-  {
-    id: 301,
-    type: "single",
-    name: "301",
-    price: 210,
-    img: single2,
-  },
-];
+import { ROOM_TYPES } from "../data/rooms";
 
 const STEP = {
   ROOM: "ROOM",
@@ -73,7 +24,11 @@ const STEP = {
   SUCCESS: "SUCCESS",
 };
 
-export default function RoomReservation({ reservations, setReservations }) {
+export default function RoomReservation({
+  reservations,
+  setReservations,
+  rooms,
+}) {
   const [step, setStep] = useState(STEP.ROOM);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [dateFrom, setDateFrom] = useState(null);
@@ -158,54 +113,68 @@ export default function RoomReservation({ reservations, setReservations }) {
               Wybierz pokój
             </Typography>
             <Stack spacing={2}>
-              {ROOMS.map((room) => (
-                <Card
-                  key={room.id}
-                  variant={
-                    selectedRoom?.id === room.id ? "outlined" : undefined
-                  }
-                >
-                  <CardContent
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      gap: 2,
-                    }}
-                  >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                      <img
-                        src={room.img}
-                        alt={room.name}
-                        style={{
-                          width: 180,
-                          height: 120,
-                          objectFit: "cover",
-                          borderRadius: 8,
-                        }}
-                      />
-                      <Box>
-                        <Typography variant="subtitle1">
-                          Pokój {room.name}
-                        </Typography>
-                        <Typography variant="body2">
-                          Typ:{" "}
-                          {ROOM_TYPES.find((t) => t.value === room.type)?.label}
-                        </Typography>
-                        <Typography variant="body2">
-                          Cena: {room.price} zł / noc
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <Button
-                      variant="contained"
-                      onClick={() => handleRoomSelect(room)}
+              {rooms.filter((r) => r.available).length === 0 ? (
+                <Alert severity="info">
+                  Brak dostępnych pokoi – wszystkie pokoje są obecnie wyłączone
+                  z dostępności przez obsługę.
+                </Alert>
+              ) : (
+                rooms
+                  .filter((r) => r.available)
+                  .map((room) => (
+                    <Card
+                      key={room.id}
+                      variant={
+                        selectedRoom?.id === room.id ? "outlined" : undefined
+                      }
                     >
-                      Wybierz
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
+                      <CardContent
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          gap: 2,
+                        }}
+                      >
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 2 }}
+                        >
+                          <img
+                            src={room.img}
+                            alt={room.name}
+                            style={{
+                              width: 180,
+                              height: 120,
+                              objectFit: "cover",
+                              borderRadius: 8,
+                            }}
+                          />
+                          <Box>
+                            <Typography variant="subtitle1">
+                              Pokój {room.name}
+                            </Typography>
+                            <Typography variant="body2">
+                              Typ:{" "}
+                              {
+                                ROOM_TYPES.find((t) => t.value === room.type)
+                                  ?.label
+                              }
+                            </Typography>
+                            <Typography variant="body2">
+                              Cena: {room.price} zł / noc
+                            </Typography>
+                          </Box>
+                        </Box>
+                        <Button
+                          variant="contained"
+                          onClick={() => handleRoomSelect(room)}
+                        >
+                          Wybierz
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))
+              )}
             </Stack>
           </CardContent>
         </Card>

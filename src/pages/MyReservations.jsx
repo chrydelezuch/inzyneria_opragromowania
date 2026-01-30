@@ -13,24 +13,19 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
-import single1 from "../assets/rooms/single1.jpg";
-import single2 from "../assets/rooms/single2.jpg";
-import double1 from "../assets/rooms/double1.jpg";
-import double2 from "../assets/rooms/double2.jpg";
-import suite from "../assets/rooms/suite.jpg";
 
-const ROOM_IMAGES = {
-  101: single1,
-  102: double1,
-  201: suite,
-  202: double2,
-  301: single2,
-};
-
-export default function MyReservations({ reservations, setReservations }) {
+export default function MyReservations({
+  reservations,
+  setReservations,
+  rooms,
+}) {
   const [selected, setSelected] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
   const [alert, setAlert] = useState("");
+
+  // Pomocnicza funkcja do pobrania obiektu pokoju po numerze
+  const getRoomObj = (roomName) =>
+    rooms?.find((r) => r.name === String(roomName));
 
   const handleShowDetails = (res) => {
     setSelected(res);
@@ -85,9 +80,9 @@ export default function MyReservations({ reservations, setReservations }) {
                 }}
               >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  {ROOM_IMAGES[res.room] && (
+                  {getRoomObj(res.room)?.img && (
                     <img
-                      src={ROOM_IMAGES[res.room]}
+                      src={getRoomObj(res.room).img}
                       alt={res.room}
                       style={{
                         width: 120,
@@ -101,7 +96,11 @@ export default function MyReservations({ reservations, setReservations }) {
                     <Typography variant="subtitle1">
                       Pokój {res.room}
                     </Typography>
-                    <Typography variant="body2">{res.type}</Typography>
+                    <Typography variant="body2">
+                      {getRoomObj(res.room)?.type
+                        ? getRoomObj(res.room).type
+                        : res.type}
+                    </Typography>
                     <Typography variant="body2">
                       {res.dateFrom} - {res.dateTo}
                     </Typography>
@@ -134,9 +133,9 @@ export default function MyReservations({ reservations, setReservations }) {
         <DialogContent>
           {selected && (
             <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-              {ROOM_IMAGES[selected.room] && (
+              {getRoomObj(selected.room)?.img && (
                 <img
-                  src={ROOM_IMAGES[selected.room]}
+                  src={getRoomObj(selected.room).img}
                   alt={selected.room}
                   style={{
                     width: 180,
@@ -148,7 +147,11 @@ export default function MyReservations({ reservations, setReservations }) {
               )}
               <Box>
                 <Typography variant="body1" sx={{ mb: 1 }}>
-                  Pokój: <b>{selected.room}</b> ({selected.type})
+                  Pokój: <b>{selected.room}</b> (
+                  {getRoomObj(selected.room)?.type
+                    ? getRoomObj(selected.room).type
+                    : selected.type}
+                  )
                 </Typography>
                 <Typography variant="body2">
                   Termin: {selected.dateFrom} - {selected.dateTo}

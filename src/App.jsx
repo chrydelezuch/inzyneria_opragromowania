@@ -14,6 +14,7 @@ import ReportFailure from "./pages/ReportFailure";
 import Contact from "./pages/Contact";
 import RoomReservation from "./pages/RoomReservation";
 import MyReservations from "./pages/MyReservations";
+import { ROOMS } from "./data/rooms";
 
 const ROLE = {
   CLIENT: "client",
@@ -30,6 +31,7 @@ function App() {
   }, []);
   const [reservations, setReservations] = useState([]);
   const [role, setRole] = useState(ROLE.CLIENT);
+const [rooms, setRooms] = useState(ROOMS);
 
   return (
     <Router>
@@ -115,6 +117,7 @@ function App() {
                     <RoomReservation
                       reservations={reservations}
                       setReservations={setReservations}
+rooms={rooms}
                       role={role}
                     />
                   }
@@ -125,6 +128,7 @@ function App() {
                     <MyReservations
                       reservations={reservations}
                       setReservations={setReservations}
+rooms={rooms}
                       role={role}
                     />
                   }
