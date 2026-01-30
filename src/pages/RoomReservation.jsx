@@ -13,11 +13,13 @@ import {
   InputLabel,
   Select,
 } from "@mui/material";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
 const ROOM_TYPES = [
-  { value: "single", label: "Jednoosobowy" },
-  { value: "double", label: "Dwuosobowy" },
-  { value: "suite", label: "Apartament" },
+  { value: "single", label: "Jednoosobowy", maxGuests: 1 },
+  { value: "double", label: "Dwuosobowy", maxGuests: 2 },
+  { value: "suite", label: "Apartament", maxGuests: 6 },
 ];
 
 const ROOMS = [
@@ -29,53 +31,78 @@ const ROOMS = [
 ];
 
 const STEP = {
-  CRITERIA: "CRITERIA",
-  ROOMS: "ROOMS",
+  ROOM: "ROOM",
+  DATES: "DATES",
   SUMMARY: "SUMMARY",
   SUCCESS: "SUCCESS",
 };
 
-export default function RoomReservation() {
-  const [criteria, setCriteria] = useState({
-    type: "",
-    dateFrom: "",
-    dateTo: "",
-    guests: 1,
-  });
-  const [step, setStep] = useState(STEP.CRITERIA);
+export default function RoomReservation({ reservations, setReservations }) {
+  const [step, setStep] = useState(STEP.ROOM);
   const [selectedRoom, setSelectedRoom] = useState(null);
+  const [dateFrom, setDateFrom] = useState(null);
+  const [dateTo, setDateTo] = useState(null);
+  const [guests, setGuests] = useState(1);
   const [reservationData, setReservationData] = useState({
     name: "",
     email: "",
   });
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
 
-  const availableRooms = ROOMS.filter(
-    (room) => !criteria.type || room.type === criteria.type,
-  );
-
-  const handleCriteriaChange = (e) => {
-    setCriteria({ ...criteria, [e.target.name]: e.target.value });
+  const getDisabledDates = () => {
+    if (!selectedRoom) return [];
+    return reservations
+      .filter((r) => r.room === selectedRoom.name)
+      .map((r) => ({ from: new Date(r.dateFrom), to: new Date(r.dateTo) }));
   };
 
-  const handleReservationDataChange = (e) => {
-    setReservationData({ ...reservationData, [e.target.name]: e.target.value });
+  const isDateDisabled = (date) => {
+    const disabled = getDisabledDates();
+    return disabled.some(({ from, to }) => date >= from && date <= to);
   };
 
   const handleRoomSelect = (room) => {
     setSelectedRoom(room);
+    setGuests(ROOM_TYPES.find((t) => t.value === room.type)?.maxGuests || 1);
+    setStep(STEP.DATES);
+    setError("");
+  };
+
+  const handleDatesNext = () => {
+    if (!dateFrom || !dateTo) {
+      setError("Wybierz zakres dat.");
+      return;
+    }
+    if (dateFrom > dateTo) {
+      setError("Data końcowa musi być po początkowej.");
+      return;
+    }
     setStep(STEP.SUMMARY);
+    setError("");
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const newReservation = {
+      id:
+        reservations.length > 0
+          ? Math.max(...reservations.map((r) => r.id)) + 1
+          : 1,
+      room: selectedRoom.name,
+      type: ROOM_TYPES.find((t) => t.value === selectedRoom.type)?.label,
+      dateFrom: dateFrom.toISOString().slice(0, 10),
+      dateTo: dateTo.toISOString().slice(0, 10),
+      guests,
+      status: "Aktywna",
+      price: selectedRoom.price,
+      paid: false,
+      name: reservationData.name,
+      email: reservationData.email,
+    };
+    setReservations([...reservations, newReservation]);
     setSuccess(true);
     setStep(STEP.SUCCESS);
-    console.log({
-      ...criteria,
-      ...reservationData,
-      room: selectedRoom,
-    });
   };
 
   return (
@@ -83,122 +110,104 @@ export default function RoomReservation() {
       <Typography variant="h4" gutterBottom>
         Rezerwacja pokoju hotelowego
       </Typography>
-      {step === STEP.CRITERIA && (
-        <Card>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              Wybierz kryteria rezerwacji
-            </Typography>
-            <Stack
-              spacing={2}
-              component="form"
-              onSubmit={(e) => {
-                e.preventDefault();
-                setStep(STEP.ROOMS);
-              }}
-            >
-              <FormControl fullWidth required>
-                <InputLabel id="room-type-label">Typ pokoju</InputLabel>
-                <Select
-                  labelId="room-type-label"
-                  label="Typ pokoju"
-                  name="type"
-                  value={criteria.type}
-                  onChange={handleCriteriaChange}
-                >
-                  {ROOM_TYPES.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <TextField
-                label="Data od"
-                name="dateFrom"
-                type="date"
-                value={criteria.dateFrom}
-                onChange={handleCriteriaChange}
-                slotProps={{ inputLabel: { shrink: true } }}
-                required
-              />
-              <TextField
-                label="Data do"
-                name="dateTo"
-                type="date"
-                value={criteria.dateTo}
-                onChange={handleCriteriaChange}
-                slotProps={{ inputLabel: { shrink: true } }}
-                required
-              />
-              <TextField
-                label="Liczba gości"
-                name="guests"
-                type="number"
-                value={criteria.guests}
-                onChange={handleCriteriaChange}
-                slotProps={{ input: { min: 1, max: 6 } }}
-                required
-              />
-              <Button type="submit" variant="contained">
-                Pokaż dostępne pokoje
-              </Button>
-            </Stack>
-          </CardContent>
-        </Card>
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
       )}
-      {step === STEP.ROOMS && (
+      {step === STEP.ROOM && (
         <Card>
           <CardContent>
             <Typography variant="h6" gutterBottom>
               Wybierz pokój
             </Typography>
-            {availableRooms.length === 0 ? (
-              <Alert severity="warning">
-                Brak dostępnych pokoi dla wybranych kryteriów.
-              </Alert>
-            ) : (
-              <Stack spacing={2}>
-                {availableRooms.map((room) => (
-                  <Card
-                    key={room.id}
-                    variant={
-                      selectedRoom?.id === room.id ? "outlined" : undefined
-                    }
+            <Stack spacing={2}>
+              {ROOMS.map((room) => (
+                <Card
+                  key={room.id}
+                  variant={
+                    selectedRoom?.id === room.id ? "outlined" : undefined
+                  }
+                >
+                  <CardContent
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
                   >
-                    <CardContent
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      }}
+                    <Box>
+                      <Typography variant="subtitle1">
+                        Pokój {room.name}
+                      </Typography>
+                      <Typography variant="body2">
+                        Typ:{" "}
+                        {ROOM_TYPES.find((t) => t.value === room.type)?.label}
+                      </Typography>
+                      <Typography variant="body2">
+                        Cena: {room.price} zł / noc
+                      </Typography>
+                    </Box>
+                    <Button
+                      variant="contained"
+                      onClick={() => handleRoomSelect(room)}
                     >
-                      <Box>
-                        <Typography variant="subtitle1">
-                          Pokój {room.name}
-                        </Typography>
-                        <Typography variant="body2">
-                          Typ:{" "}
-                          {ROOM_TYPES.find((t) => t.value === room.type)?.label}
-                        </Typography>
-                        <Typography variant="body2">
-                          Cena: {room.price} zł / noc
-                        </Typography>
-                      </Box>
-                      <Button
-                        variant="contained"
-                        onClick={() => handleRoomSelect(room)}
-                      >
-                        Wybierz
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
+                      Wybierz
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </Stack>
+          </CardContent>
+        </Card>
+      )}
+      {step === STEP.DATES && selectedRoom && (
+        <Card>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>
+              Wybierz daty i liczbę gości
+            </Typography>
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <Stack spacing={2}>
+                <DatePicker
+                  label="Data od"
+                  value={dateFrom}
+                  onChange={setDateFrom}
+                  shouldDisableDate={isDateDisabled}
+                  minDate={new Date()}
+                  format="yyyy-MM-dd"
+                />
+                <DatePicker
+                  label="Data do"
+                  value={dateTo}
+                  onChange={setDateTo}
+                  shouldDisableDate={isDateDisabled}
+                  minDate={dateFrom || new Date()}
+                  format="yyyy-MM-dd"
+                />
+                <TextField
+                  label="Liczba gości"
+                  type="number"
+                  value={guests}
+                  onChange={(e) => setGuests(Number(e.target.value))}
+                  slotProps={{
+                    htmlInput: {
+                      min: 1,
+                      max:
+                        ROOM_TYPES.find((t) => t.value === selectedRoom.type)
+                          ?.maxGuests || 1,
+                    },
+                  }}
+                  required
+                />
+                <Button variant="contained" onClick={handleDatesNext}>
+                  Dalej
+                </Button>
+                <Button onClick={() => setStep(STEP.ROOM)}>
+                  Wróć do wyboru pokoju
+                </Button>
               </Stack>
-            )}
-            <Button sx={{ mt: 2 }} onClick={() => setStep(STEP.CRITERIA)}>
-              Wróć do kryteriów
-            </Button>
+            </LocalizationProvider>
           </CardContent>
         </Card>
       )}
@@ -214,16 +223,22 @@ export default function RoomReservation() {
               <br />
               Cena: <b>{selectedRoom.price} zł / noc</b>
               <br />
-              Termin: <b>{criteria.dateFrom}</b> - <b>{criteria.dateTo}</b>
+              Termin: <b>{dateFrom?.toLocaleDateString()}</b> -{" "}
+              <b>{dateTo?.toLocaleDateString()}</b>
               <br />
-              Liczba gości: <b>{criteria.guests}</b>
+              Liczba gości: <b>{guests}</b>
             </Typography>
             <Stack spacing={2} component="form" onSubmit={handleSubmit}>
               <TextField
                 label="Imię i nazwisko"
                 name="name"
                 value={reservationData.name}
-                onChange={handleReservationDataChange}
+                onChange={(e) =>
+                  setReservationData({
+                    ...reservationData,
+                    name: e.target.value,
+                  })
+                }
                 required
                 fullWidth
               />
@@ -231,7 +246,12 @@ export default function RoomReservation() {
                 label="E-mail"
                 name="email"
                 value={reservationData.email}
-                onChange={handleReservationDataChange}
+                onChange={(e) =>
+                  setReservationData({
+                    ...reservationData,
+                    email: e.target.value,
+                  })
+                }
                 required
                 fullWidth
                 type="email"
@@ -240,8 +260,8 @@ export default function RoomReservation() {
                 Potwierdź rezerwację
               </Button>
             </Stack>
-            <Button sx={{ mt: 2 }} onClick={() => setStep(STEP.ROOMS)}>
-              Wróć do wyboru pokoju
+            <Button sx={{ mt: 2 }} onClick={() => setStep(STEP.DATES)}>
+              Wróć do wyboru dat
             </Button>
           </CardContent>
         </Card>

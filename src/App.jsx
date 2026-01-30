@@ -18,6 +18,7 @@ import Dashboard from "./pages/Dashboard";
 import ReportFailure from "./pages/ReportFailure";
 import Contact from "./pages/Contact";
 import RoomReservation from "./pages/RoomReservation";
+import MyReservations from "./pages/MyReservations";
 
 const MOCK_FEATURES = [
   { id: 1, title: "Zgłoszenie awarii", path: "/reportfailure" },
@@ -25,6 +26,7 @@ const MOCK_FEATURES = [
 
 function App() {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [reservations, setReservations] = useState([]);
 
   const toggleDrawer = (open) => (event) => {
     if (
@@ -87,6 +89,9 @@ function App() {
               <Button color="inherit" component={Link} to="/roomreservation">
                 Pokoje
               </Button>
+              <Button color="inherit" component={Link} to="/myreservations">
+                Moje rezerwacje
+              </Button>
               <Button color="inherit" component={Link} to="/contact">
                 Kontakt
               </Button>
@@ -104,7 +109,24 @@ function App() {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/reportfailure" element={<ReportFailure />} />
-            <Route path="/roomreservation" element={<RoomReservation />} />
+            <Route
+              path="/roomreservation"
+              element={
+                <RoomReservation
+                  reservations={reservations}
+                  setReservations={setReservations}
+                />
+              }
+            />
+            <Route
+              path="/myreservations"
+              element={
+                <MyReservations
+                  reservations={reservations}
+                  setReservations={setReservations}
+                />
+              }
+            />
             <Route path="/contact" element={<Contact />} />
           </Routes>
         </Container>
