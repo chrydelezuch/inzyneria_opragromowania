@@ -57,7 +57,7 @@ export default function Dashboard() {
           {SERVICES.map((service, idx) => {
             const IconComponent = service.icon;
             return (
-              <Grid item xs={12} sm={6} md={4} key={idx}>
+              <Grid item size={{ xs: 12, sm: 6, md: 4 }} key={idx}>
                 <Card
                   sx={{
                     height: "100%",
