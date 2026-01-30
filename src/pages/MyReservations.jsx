@@ -23,7 +23,6 @@ export default function MyReservations({
   const [showDetails, setShowDetails] = useState(false);
   const [alert, setAlert] = useState("");
 
-  // Pomocnicza funkcja do pobrania obiektu pokoju po numerze
   const getRoomObj = (roomName) =>
     rooms?.find((r) => r.name === String(roomName));
 

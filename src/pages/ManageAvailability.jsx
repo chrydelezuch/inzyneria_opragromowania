@@ -8,7 +8,6 @@ import {
   Button,
   Stack,
 } from "@mui/material";
-import { ROOMS } from "../data/rooms";
 
 export default function ManageAvailability({ services, setServices }) {
   const [localServices, setLocalServices] = useState(services);
