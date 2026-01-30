@@ -7,13 +7,21 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  Navigate,
+} from "react-router-dom";
 import { AppBar, Toolbar, Container, Button, Box } from "@mui/material";
 import Dashboard from "./pages/Dashboard";
 import ReportFailure from "./pages/ReportFailure";
+import ManageAvailability from "./pages/ManageAvailability";
 import Contact from "./pages/Contact";
 import RoomReservation from "./pages/RoomReservation";
 import MyReservations from "./pages/MyReservations";
+import { ROOMS } from "./data/rooms";
 
 const ROLE = {
   CLIENT: "client",
@@ -30,6 +38,7 @@ function App() {
   }, []);
   const [reservations, setReservations] = useState([]);
   const [role, setRole] = useState(ROLE.CLIENT);
+  const [rooms, setRooms] = useState(ROOMS);
 
   return (
     <Router>
@@ -90,9 +99,18 @@ function App() {
                 </>
               )}
               {role === ROLE.STAFF && (
-                <Button color="inherit" component={Link} to="/reportfailure">
-                  Zgłoś awarię
-                </Button>
+                <>
+                  <Button
+                    color="inherit"
+                    component={Link}
+                    to="/manage-availability"
+                  >
+                    Zarządzanie dostępnością
+                  </Button>
+                  <Button color="inherit" component={Link} to="/reportfailure">
+                    Zgłoś awarię
+                  </Button>
+                </>
               )}
             </Box>
             <Box sx={{ width: 64 }} />
@@ -100,43 +118,67 @@ function App() {
         </AppBar>
         <Container maxWidth="lg" sx={{ flex: 1, py: 4 }}>
           <Routes>
-            <Route path="/" element={<Dashboard role={role} />} />
-            {role === ROLE.STAFF && (
-              <Route
-                path="/reportfailure"
-                element={<ReportFailure role={role} />}
-              />
-            )}
-            {role === ROLE.CLIENT && (
-              <>
-                <Route
-                  path="/roomreservation"
-                  element={
-                    <RoomReservation
-                      reservations={reservations}
-                      setReservations={setReservations}
-                      role={role}
-                    />
-                  }
-                />
-                <Route
-                  path="/myreservations"
-                  element={
-                    <MyReservations
-                      reservations={reservations}
-                      setReservations={setReservations}
-                      role={role}
-                    />
-                  }
-                />
-                <Route path="/contact" element={<Contact role={role} />} />
-              </>
-            )}
+            <Route path="/" element={<Dashboard/>} />
+            <Route
+              path="/manage-availability"
+              element={
+                <ProtectedRoute allowed={role === ROLE.STAFF}>
+                  <ManageAvailability services={rooms} setServices={setRooms} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/reportfailure"
+              element={
+                <ProtectedRoute allowed={role === ROLE.STAFF}>
+                  <ReportFailure />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/roomreservation"
+              element={
+                <ProtectedRoute allowed={role === ROLE.CLIENT}>
+                  <RoomReservation
+                    reservations={reservations}
+                    setReservations={setReservations}
+                    rooms={rooms}
+                  />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/myreservations"
+              element={
+                <ProtectedRoute allowed={role === ROLE.CLIENT}>
+                  <MyReservations
+                    reservations={reservations}
+                    setReservations={setReservations}
+                    rooms={rooms}
+                  />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/contact"
+              element={
+                <ProtectedRoute allowed={role === ROLE.CLIENT}>
+                  <Contact />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </Container>
       </Box>
     </Router>
   );
+}
+
+function ProtectedRoute({ allowed, children }) {
+  if (!allowed) {
+    return <Navigate to="/" replace />;
+  }
+  return children;
 }
 
 export default App;
