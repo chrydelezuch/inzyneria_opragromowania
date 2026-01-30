@@ -98,30 +98,32 @@ function App() {
                   </Button>
                 </>
               )}
+              {(role === ROLE.STAFF || role === ROLE.MANAGER) && (
+                <Button
+                  color="inherit"
+                  component={Link}
+                  to="/manage-availability"
+                >
+                  Zarządzanie dostępnością
+                </Button>
+              )}
               {role === ROLE.STAFF && (
-                <>
-                  <Button
-                    color="inherit"
-                    component={Link}
-                    to="/manage-availability"
-                  >
-                    Zarządzanie dostępnością
-                  </Button>
-                  <Button color="inherit" component={Link} to="/reportfailure">
-                    Zgłoś awarię
-                  </Button>
-                </>
+                <Button color="inherit" component={Link} to="/reportfailure">
+                  Zgłoś awarię
+                </Button>
               )}
             </Box>
-                      </Toolbar>
+          </Toolbar>
         </AppBar>
         <Container maxWidth="lg" sx={{ flex: 1, py: 4 }}>
           <Routes>
-            <Route path="/" element={<Dashboard/>} />
+            <Route path="/" element={<Dashboard />} />
             <Route
               path="/manage-availability"
               element={
-                <ProtectedRoute allowed={role === ROLE.STAFF}>
+                <ProtectedRoute
+                  allowed={role === ROLE.STAFF || role === ROLE.MANAGER}
+                >
                   <ManageAvailability services={rooms} setServices={setRooms} />
                 </ProtectedRoute>
               }
