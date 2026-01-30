@@ -113,8 +113,7 @@ function App() {
                 </>
               )}
             </Box>
-            <Box sx={{ width: 64 }} />
-          </Toolbar>
+                      </Toolbar>
         </AppBar>
         <Container maxWidth="lg" sx={{ flex: 1, py: 4 }}>
           <Routes>
