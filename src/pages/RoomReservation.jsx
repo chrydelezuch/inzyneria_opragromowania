@@ -22,12 +22,48 @@ const ROOM_TYPES = [
   { value: "suite", label: "Apartament", maxGuests: 6 },
 ];
 
+import single1 from "../assets/rooms/single1.jpg";
+import single2 from "../assets/rooms/single2.jpg";
+import double1 from "../assets/rooms/double1.jpg";
+import double2 from "../assets/rooms/double2.jpg";
+import suite from "../assets/rooms/suite.jpg";
+
 const ROOMS = [
-  { id: 101, type: "single", name: "101", price: 200 },
-  { id: 102, type: "double", name: "102", price: 300 },
-  { id: 201, type: "suite", name: "201", price: 500 },
-  { id: 202, type: "double", name: "202", price: 320 },
-  { id: 301, type: "single", name: "301", price: 210 },
+  {
+    id: 101,
+    type: "single",
+    name: "101",
+    price: 200,
+    img: single1,
+  },
+  {
+    id: 102,
+    type: "double",
+    name: "102",
+    price: 300,
+    img: double1,
+  },
+  {
+    id: 201,
+    type: "suite",
+    name: "201",
+    price: 500,
+    img: suite,
+  },
+  {
+    id: 202,
+    type: "double",
+    name: "202",
+    price: 320,
+    img: double2,
+  },
+  {
+    id: 301,
+    type: "single",
+    name: "301",
+    price: 210,
+    img: single2,
+  },
 ];
 
 const STEP = {
@@ -134,19 +170,32 @@ export default function RoomReservation({ reservations, setReservations }) {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
+                      gap: 2,
                     }}
                   >
-                    <Box>
-                      <Typography variant="subtitle1">
-                        Pokój {room.name}
-                      </Typography>
-                      <Typography variant="body2">
-                        Typ:{" "}
-                        {ROOM_TYPES.find((t) => t.value === room.type)?.label}
-                      </Typography>
-                      <Typography variant="body2">
-                        Cena: {room.price} zł / noc
-                      </Typography>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                      <img
+                        src={room.img}
+                        alt={room.name}
+                        style={{
+                          width: 180,
+                          height: 120,
+                          objectFit: "cover",
+                          borderRadius: 8,
+                        }}
+                      />
+                      <Box>
+                        <Typography variant="subtitle1">
+                          Pokój {room.name}
+                        </Typography>
+                        <Typography variant="body2">
+                          Typ:{" "}
+                          {ROOM_TYPES.find((t) => t.value === room.type)?.label}
+                        </Typography>
+                        <Typography variant="body2">
+                          Cena: {room.price} zł / noc
+                        </Typography>
+                      </Box>
                     </Box>
                     <Button
                       variant="contained"

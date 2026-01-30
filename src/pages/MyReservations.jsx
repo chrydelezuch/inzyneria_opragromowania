@@ -13,6 +13,19 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
+import single1 from "../assets/rooms/single1.jpg";
+import single2 from "../assets/rooms/single2.jpg";
+import double1 from "../assets/rooms/double1.jpg";
+import double2 from "../assets/rooms/double2.jpg";
+import suite from "../assets/rooms/suite.jpg";
+
+const ROOM_IMAGES = {
+  101: single1,
+  102: double1,
+  201: suite,
+  202: double2,
+  301: single2,
+};
 
 export default function MyReservations({ reservations, setReservations }) {
   const [selected, setSelected] = useState(null);
@@ -68,25 +81,42 @@ export default function MyReservations({ reservations, setReservations }) {
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
+                  gap: 2,
                 }}
               >
-                <Box>
-                  <Typography variant="subtitle1">Pokój {res.room}</Typography>
-                  <Typography variant="body2">{res.type}</Typography>
-                  <Typography variant="body2">
-                    {res.dateFrom} - {res.dateTo}
-                  </Typography>
-                  <Typography variant="body2">Gości: {res.guests}</Typography>
-                  <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                    <Chip
-                      label={res.status}
-                      color={res.status === "Aktywna" ? "primary" : "default"}
-                      size="small"
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  {ROOM_IMAGES[res.room] && (
+                    <img
+                      src={ROOM_IMAGES[res.room]}
+                      alt={res.room}
+                      style={{
+                        width: 120,
+                        height: 90,
+                        objectFit: "cover",
+                        borderRadius: 8,
+                      }}
                     />
-                    {res.paid && (
-                      <Chip label="Opłacona" color="success" size="small" />
-                    )}
-                  </Stack>
+                  )}
+                  <Box>
+                    <Typography variant="subtitle1">
+                      Pokój {res.room}
+                    </Typography>
+                    <Typography variant="body2">{res.type}</Typography>
+                    <Typography variant="body2">
+                      {res.dateFrom} - {res.dateTo}
+                    </Typography>
+                    <Typography variant="body2">Gości: {res.guests}</Typography>
+                    <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                      <Chip
+                        label={res.status}
+                        color={res.status === "Aktywna" ? "primary" : "default"}
+                        size="small"
+                      />
+                      {res.paid && (
+                        <Chip label="Opłacona" color="success" size="small" />
+                      )}
+                    </Stack>
+                  </Box>
                 </Box>
                 <Button
                   variant="outlined"
@@ -103,27 +133,45 @@ export default function MyReservations({ reservations, setReservations }) {
         <DialogTitle>Szczegóły rezerwacji</DialogTitle>
         <DialogContent>
           {selected && (
-            <Box>
-              <Typography variant="body1" sx={{ mb: 1 }}>
-                Pokój: <b>{selected.room}</b> ({selected.type})
-              </Typography>
-              <Typography variant="body2">
-                Termin: {selected.dateFrom} - {selected.dateTo}
-              </Typography>
-              <Typography variant="body2">Gości: {selected.guests}</Typography>
-              <Typography variant="body2">
-                Cena: {selected.price} zł / noc
-              </Typography>
-              <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                <Chip
-                  label={selected.status}
-                  color={selected.status === "Aktywna" ? "primary" : "default"}
-                  size="small"
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+              {ROOM_IMAGES[selected.room] && (
+                <img
+                  src={ROOM_IMAGES[selected.room]}
+                  alt={selected.room}
+                  style={{
+                    width: 180,
+                    height: 120,
+                    objectFit: "cover",
+                    borderRadius: 8,
+                  }}
                 />
-                {selected.paid && (
-                  <Chip label="Opłacona" color="success" size="small" />
-                )}
-              </Stack>
+              )}
+              <Box>
+                <Typography variant="body1" sx={{ mb: 1 }}>
+                  Pokój: <b>{selected.room}</b> ({selected.type})
+                </Typography>
+                <Typography variant="body2">
+                  Termin: {selected.dateFrom} - {selected.dateTo}
+                </Typography>
+                <Typography variant="body2">
+                  Gości: {selected.guests}
+                </Typography>
+                <Typography variant="body2">
+                  Cena: {selected.price} zł / noc
+                </Typography>
+                <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                  <Chip
+                    label={selected.status}
+                    color={
+                      selected.status === "Aktywna" ? "primary" : "default"
+                    }
+                    size="small"
+                  />
+                  {selected.paid && (
+                    <Chip label="Opłacona" color="success" size="small" />
+                  )}
+                </Stack>
+              </Box>
             </Box>
           )}
         </DialogContent>
