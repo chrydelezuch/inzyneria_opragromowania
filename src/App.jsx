@@ -1,80 +1,66 @@
+import { useEffect, useRef } from "react";
 import { useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import {
-  AppBar,
-  Toolbar,
-  Container,
-  Button,
-  Box,
-  Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  IconButton,
+  Box as MuiBox,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { AppBar, Toolbar, Container, Button, Box } from "@mui/material";
 import Dashboard from "./pages/Dashboard";
 import ReportFailure from "./pages/ReportFailure";
 import Contact from "./pages/Contact";
 import RoomReservation from "./pages/RoomReservation";
 import MyReservations from "./pages/MyReservations";
 
-const MOCK_FEATURES = [
-  { id: 1, title: "Zgłoszenie awarii", path: "/reportfailure" },
-];
+const ROLE = {
+  CLIENT: "client",
+  STAFF: "staff",
+  MANAGER: "manager",
+};
 
 function App() {
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [reservations, setReservations] = useState([]);
-
-  const toggleDrawer = (open) => (event) => {
-    if (
-      event.type === "keydown" &&
-      (event.key === "Tab" || event.key === "Shift")
-    ) {
-      return;
+  const mainRef = useRef(null);
+  useEffect(() => {
+    if (mainRef.current) {
+      mainRef.current.scrollIntoView({ behavior: "auto" });
     }
-    setDrawerOpen(open);
-  };
-
-  const drawerContent = (
-    <Box sx={{ width: 300, p: 2 }}>
-      <Box sx={{ mb: 3 }}>
-        <h3>Dostępne funkcjonalności</h3>
-      </Box>
-      <List>
-        {MOCK_FEATURES.map((feature) => (
-          <ListItem key={feature.id} disablePadding>
-            <ListItemButton
-              component={Link}
-              to={feature.path}
-              onClick={() => setDrawerOpen(false)}
-            >
-              <ListItemText primary={feature.title} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-    </Box>
-  );
+  }, []);
+  const [reservations, setReservations] = useState([]);
+  const [role, setRole] = useState(ROLE.CLIENT);
 
   return (
     <Router>
+      <MuiBox
+        sx={{
+          bgcolor: "#f5f5f5",
+          p: 1,
+          display: "flex",
+          justifyContent: "flex-end",
+        }}
+      >
+        <FormControl size="small" sx={{ minWidth: 180 }}>
+          <InputLabel id="role-label">Rola</InputLabel>
+          <Select
+            labelId="role-label"
+            value={role}
+            label="Rola"
+            onChange={(e) => setRole(e.target.value)}
+          >
+            <MenuItem value={ROLE.CLIENT}>Klient</MenuItem>
+            <MenuItem value={ROLE.STAFF}>Pracownik</MenuItem>
+            <MenuItem value={ROLE.MANAGER}>Kierownik</MenuItem>
+          </Select>
+        </FormControl>
+      </MuiBox>
       <Box
+        ref={mainRef}
         sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
       >
         <AppBar position="static">
           <Toolbar>
-            <IconButton
-              color="inherit"
-              edge="start"
-              onClick={toggleDrawer(true)}
-              sx={{ mr: 2 }}
-            >
-              <MenuIcon />
-            </IconButton>
-
             <Box
               sx={{
                 flexGrow: 1,
@@ -86,48 +72,66 @@ function App() {
               <Button color="inherit" component={Link} to="/">
                 Hotel
               </Button>
-              <Button color="inherit" component={Link} to="/roomreservation">
-                Pokoje
-              </Button>
-              <Button color="inherit" component={Link} to="/myreservations">
-                Moje rezerwacje
-              </Button>
-              <Button color="inherit" component={Link} to="/contact">
-                Kontakt
-              </Button>
+              {role === ROLE.CLIENT && (
+                <>
+                  <Button
+                    color="inherit"
+                    component={Link}
+                    to="/roomreservation"
+                  >
+                    Pokoje
+                  </Button>
+                  <Button color="inherit" component={Link} to="/myreservations">
+                    Moje rezerwacje
+                  </Button>
+                  <Button color="inherit" component={Link} to="/contact">
+                    Kontakt
+                  </Button>
+                </>
+              )}
+              {role === ROLE.STAFF && (
+                <Button color="inherit" component={Link} to="/reportfailure">
+                  Zgłoś awarię
+                </Button>
+              )}
             </Box>
-
             <Box sx={{ width: 64 }} />
           </Toolbar>
         </AppBar>
-
-        <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
-          {drawerContent}
-        </Drawer>
-
         <Container maxWidth="lg" sx={{ flex: 1, py: 4 }}>
           <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/reportfailure" element={<ReportFailure />} />
-            <Route
-              path="/roomreservation"
-              element={
-                <RoomReservation
-                  reservations={reservations}
-                  setReservations={setReservations}
+            <Route path="/" element={<Dashboard role={role} />} />
+            {role === ROLE.STAFF && (
+              <Route
+                path="/reportfailure"
+                element={<ReportFailure role={role} />}
+              />
+            )}
+            {role === ROLE.CLIENT && (
+              <>
+                <Route
+                  path="/roomreservation"
+                  element={
+                    <RoomReservation
+                      reservations={reservations}
+                      setReservations={setReservations}
+                      role={role}
+                    />
+                  }
                 />
-              }
-            />
-            <Route
-              path="/myreservations"
-              element={
-                <MyReservations
-                  reservations={reservations}
-                  setReservations={setReservations}
+                <Route
+                  path="/myreservations"
+                  element={
+                    <MyReservations
+                      reservations={reservations}
+                      setReservations={setReservations}
+                      role={role}
+                    />
+                  }
                 />
-              }
-            />
-            <Route path="/contact" element={<Contact />} />
+                <Route path="/contact" element={<Contact role={role} />} />
+              </>
+            )}
           </Routes>
         </Container>
       </Box>
