@@ -113,14 +113,21 @@ export default function RoomReservation({
               Wybierz pokój
             </Typography>
             <Stack spacing={2}>
-              {rooms.filter((r) => r.available).length === 0 ? (
+              {rooms.filter(
+                (r) =>
+                  r.available && ["single", "double", "suite"].includes(r.type),
+              ).length === 0 ? (
                 <Alert severity="info">
                   Brak dostępnych pokoi – wszystkie pokoje są obecnie wyłączone
                   z dostępności przez obsługę.
                 </Alert>
               ) : (
                 rooms
-                  .filter((r) => r.available)
+                  .filter(
+                    (r) =>
+                      r.available &&
+                      ["single", "double", "suite"].includes(r.type),
+                  )
                   .map((room) => (
                     <Card
                       key={room.id}
