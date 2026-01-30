@@ -17,6 +17,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Dashboard from "./pages/Dashboard";
 import ReportFailure from "./pages/ReportFailure";
 import Contact from "./pages/Contact";
+import RoomReservation from "./pages/RoomReservation";
 
 const MOCK_FEATURES = [
   { id: 1, title: "Zgłoszenie awarii", path: "/reportfailure" },
@@ -83,6 +84,9 @@ function App() {
               <Button color="inherit" component={Link} to="/">
                 Hotel
               </Button>
+              <Button color="inherit" component={Link} to="/roomreservation">
+                Pokoje
+              </Button>
               <Button color="inherit" component={Link} to="/contact">
                 Kontakt
               </Button>
@@ -100,6 +104,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/reportfailure" element={<ReportFailure />} />
+            <Route path="/roomreservation" element={<RoomReservation />} />
             <Route path="/contact" element={<Contact />} />
           </Routes>
         </Container>
