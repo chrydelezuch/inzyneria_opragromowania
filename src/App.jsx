@@ -21,6 +21,7 @@ import ManageAvailability from "./pages/ManageAvailability";
 import Contact from "./pages/Contact";
 import RoomReservation from "./pages/RoomReservation";
 import MyReservations from "./pages/MyReservations";
+import ReportFinancial from "./pages/ReportFinancial";
 import { ROOMS } from "./data/rooms";
 
 const ROLE = {
@@ -107,6 +108,11 @@ function App() {
                   Zarządzanie dostępnością
                 </Button>
               )}
+              {role === ROLE.MANAGER && (
+                <Button color="inherit" component={Link} to="/report-financial">
+                  Raport finansowy
+                </Button>
+              )}
               {role === ROLE.STAFF && (
                 <Button color="inherit" component={Link} to="/reportfailure">
                   Zgłoś awarię
@@ -125,6 +131,14 @@ function App() {
                   allowed={role === ROLE.STAFF || role === ROLE.MANAGER}
                 >
                   <ManageAvailability services={rooms} setServices={setRooms} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/report-financial"
+              element={
+                <ProtectedRoute allowed={role === ROLE.MANAGER}>
+                  <ReportFinancial />
                 </ProtectedRoute>
               }
             />
