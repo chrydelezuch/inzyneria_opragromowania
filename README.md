@@ -1,6 +1,6 @@
-# System Hotelowy - Mock
+# System Zarządzania Kompleksem Hotelowo-Rekreacyjnym
 
-Projekt mock systemu hotelowego zbudowany z React, Vite, Material-UI i React Router.
+Mock aplikacji do zarządzania kompleksem hotelowo-rekreacyjnym.  Pozwala na testowanie kluczowych scenariuszy biznesowych w formie uproszczonej symulacji.
 
 ## Wymagania
 
@@ -39,18 +39,24 @@ npm run preview
 
 ```
 src/
-├── App.jsx              # Główny komponent z routingiem
+├── App.jsx              # Główny komponent, routing, role, stan globalny
 ├── main.jsx             # Punkt wejścia aplikacji
-├── App.css              # Style aplikacji
-├── index.css            # Style globalne
+├── index.css            # Style
+├── data/rooms.js        # Mockowane zasoby (pokoje, sale, itp.)
+├── components/BarChart.js # Komponent wykresu
 └── pages/
-    └── Dashboard.jsx    # Strona główna (do implementacji)
+    ├── Dashboard.jsx         # Strona główna
+    ├── RoomReservation.jsx   # Rezerwacja pokoju
+    ├── MyReservations.jsx    # Podgląd/anulowanie rezerwacji
+    ├── ManageAvailability.jsx# Zarządzanie dostępnością
+    ├── ReportFinancial.jsx   # Raport finansowy
+    ├── ReportFailure.jsx     # Zgłoszenie awarii
+    └── Contact.jsx           # Kontakt z obsługą
 ```
 
-## Dostępne technologie
+## Technologie
 
-- **React 19** - Biblioteka UI
-- **Vite** - Build tool
-- **Material-UI (MUI)** - Komponenty UI
-- **React Router** - Routing
-- **ESLint** - Linting
+- **React 19** – UI
+- **Vite 7** – build tool
+- **Material-UI 7** – komponenty UI
+- **React Router 7** – routing
