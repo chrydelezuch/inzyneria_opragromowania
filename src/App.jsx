@@ -21,6 +21,7 @@ import ManageAvailability from "./pages/ManageAvailability";
 import Contact from "./pages/Contact";
 import RoomReservation from "./pages/RoomReservation";
 import MyReservations from "./pages/MyReservations";
+import ReportFinancial from "./pages/ReportFinancial";
 import { ROOMS } from "./data/rooms";
 
 const ROLE = {
@@ -98,32 +99,46 @@ function App() {
                   </Button>
                 </>
               )}
+              {(role === ROLE.STAFF || role === ROLE.MANAGER) && (
+                <Button
+                  color="inherit"
+                  component={Link}
+                  to="/manage-availability"
+                >
+                  Zarządzanie dostępnością
+                </Button>
+              )}
+              {role === ROLE.MANAGER && (
+                <Button color="inherit" component={Link} to="/report-financial">
+                  Raport finansowy
+                </Button>
+              )}
               {role === ROLE.STAFF && (
-                <>
-                  <Button
-                    color="inherit"
-                    component={Link}
-                    to="/manage-availability"
-                  >
-                    Zarządzanie dostępnością
-                  </Button>
-                  <Button color="inherit" component={Link} to="/reportfailure">
-                    Zgłoś awarię
-                  </Button>
-                </>
+                <Button color="inherit" component={Link} to="/reportfailure">
+                  Zgłoś awarię
+                </Button>
               )}
             </Box>
-            <Box sx={{ width: 64 }} />
           </Toolbar>
         </AppBar>
         <Container maxWidth="lg" sx={{ flex: 1, py: 4 }}>
           <Routes>
-            <Route path="/" element={<Dashboard/>} />
+            <Route path="/" element={<Dashboard />} />
             <Route
               path="/manage-availability"
               element={
-                <ProtectedRoute allowed={role === ROLE.STAFF}>
+                <ProtectedRoute
+                  allowed={role === ROLE.STAFF || role === ROLE.MANAGER}
+                >
                   <ManageAvailability services={rooms} setServices={setRooms} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/report-financial"
+              element={
+                <ProtectedRoute allowed={role === ROLE.MANAGER}>
+                  <ReportFinancial />
                 </ProtectedRoute>
               }
             />
